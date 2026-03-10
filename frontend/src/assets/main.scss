@@ -1,0 +1,11 @@
+// ─── 引入 Bootstrap ───
+@import 'bootstrap/scss/bootstrap';
+
+// ─── Layout 全局樣式 ───
+.app-layout {
+  min-height: 100vh;
+}
+
+.main-content {
+  min-height: 0;
+}

@@ -37,22 +37,21 @@ defineEmits<{
   z-index: 1030;
 }
 
-/* 專為深色 Header 設計的按鈕樣式 */
 .header-btn {
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px; /* 稍微方正一點點，更有科技感 */
+  border-radius: 8px;
   border: none;
   background: transparent;
-  color: #adb5bd; /* 沒碰到時是灰色 */
+  color: #adb5bd; 
   transition: all 0.2s;
 }
 
 .header-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* 懸浮時半透明白 */
-  color: #fff; /* 懸浮時變純白 */
+  background-color: rgba(255, 255, 255, 0.1); 
+  color: #fff; 
 }
 </style>

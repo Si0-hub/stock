@@ -50,11 +50,20 @@ def get_index_history(symbol: str, period: str = "3mo") -> dict:
     name = INDICES.get(symbol, symbol)
     ticker = yf.Ticker(symbol)
     df = ticker.history(period=period)
+    df.columns = df.columns.str.lower()
 
-    history = [
-        {"date": row.Index.strftime("%Y-%m-%d"), "close": round(row.Close, 2)}
-        for row in df.itertuples()
-    ]
+    history = []
+    for idx, row in df.iterrows():
+        history.append(
+            {
+                "date": idx.strftime("%Y-%m-%d"),
+                "open": round(row["open"], 2),
+                "high": round(row["high"], 2),
+                "low": round(row["low"], 2),
+                "close": round(row["close"], 2),
+                "volume": int(row["volume"]),
+            }
+        )
 
     return {
         "symbol": symbol,

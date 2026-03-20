@@ -9,6 +9,11 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
+    {
+      path: '/heatmap',
+      name: 'heatmap',
+      component: () => import('../views/HeatmapView.vue'),
+    },
   ],
 })
 

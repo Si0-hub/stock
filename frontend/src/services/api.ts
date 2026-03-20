@@ -42,3 +42,23 @@ export async function getIndexHistory(
   )
   return data
 }
+
+// ---- 熱力圖 ----
+
+export interface HeatmapStock {
+  ticker: string
+  name: string
+  marketCap: number
+  changePercent: number
+  price: number
+}
+
+export interface HeatmapSector {
+  name: string
+  children: HeatmapStock[]
+}
+
+export async function getHeatmapData(): Promise<HeatmapSector[]> {
+  const { data } = await api.get<HeatmapSector[]>('/market/heatmap')
+  return data
+}

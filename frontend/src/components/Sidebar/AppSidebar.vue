@@ -10,7 +10,14 @@ defineProps<{
     :class="{ 'sidebar-collapsed': collapsed }"
   >
     <nav class="nav flex-column mt-3 gap-1">
-      <!-- 功能開發後再加入選單項目 -->
+      <router-link to="/" class="sidebar-link" exact-active-class="active">
+        <span class="link-icon"><i class="bi bi-house-door" /></span>
+        <span v-if="!collapsed" class="link-text">市場概覽</span>
+      </router-link>
+      <router-link to="/heatmap" class="sidebar-link" active-class="active">
+        <span class="link-icon"><i class="bi bi-grid-3x3-gap-fill" /></span>
+        <span v-if="!collapsed" class="link-text">熱力圖</span>
+      </router-link>
     </nav>
   </aside>
 </template>

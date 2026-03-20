@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query
 
 from services.market_service import get_index_history, get_indices_quote
+from services.heatmap_service import get_heatmap_data
 
 router = APIRouter()
 
@@ -15,3 +16,9 @@ def list_indices():
 def index_history(symbol: str, period: str = Query(default="3mo")):
     """取得單一指數的歷史走勢"""
     return get_index_history(symbol, period)
+
+
+@router.get("/heatmap")
+def heatmap():
+    """取得熱力圖資料（依產業分組）"""
+    return get_heatmap_data()

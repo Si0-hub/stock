@@ -46,12 +46,12 @@ defineEmits<{
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: #adb5bd; 
+  color: #adb5bd;
   transition: all 0.2s;
 }
 
 .header-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1); 
-  color: #fff; 
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 </style>

@@ -14,6 +14,12 @@ const router = createRouter({
       name: 'heatmap',
       component: () => import('../views/HeatmapView.vue'),
     },
+    { path: '/stock', name: 'stock', component: () => import('../views/StockView.vue') },
+    {
+      path: '/stock/:symbol',
+      name: 'stock-detail',
+      component: () => import('../views/StockView.vue'),
+    },
   ],
 })
 

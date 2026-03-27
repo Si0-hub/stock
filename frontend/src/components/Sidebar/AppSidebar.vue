@@ -18,6 +18,10 @@ defineProps<{
         <span class="link-icon"><i class="bi bi-grid-3x3-gap-fill" /></span>
         <span v-if="!collapsed" class="link-text">熱力圖</span>
       </router-link>
+      <router-link to="/stock" class="sidebar-link" active-class="active">
+        <span class="link-icon"><i class="bi bi-search" /></span>
+        <span v-if="!collapsed" class="link-text">股票查詢</span>
+      </router-link>
     </nav>
   </aside>
 </template>

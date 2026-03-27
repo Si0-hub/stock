@@ -6,7 +6,16 @@ import { TreemapChart } from 'echarts/charts'
 import { TooltipComponent, VisualMapComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { getHeatmapData, type HeatmapSector } from '@/services/api'
+import type { CallbackDataParams } from 'echarts/types/dist/shared'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
+
+interface TreemapNodeData {
+  name: string
+  fullName?: string
+  price?: number
+  changePercent?: number
+  value?: number
+}
 
 use([TreemapChart, TooltipComponent, VisualMapComponent, CanvasRenderer])
 
@@ -67,8 +76,8 @@ const chartOption = computed(() => {
       backgroundColor: 'rgba(30,30,30,0.95)',
       borderColor: '#555',
       textStyle: { color: '#fff', fontSize: 13 },
-      formatter: (params: any) => {
-        const d = params.data
+      formatter: (params: CallbackDataParams) => {
+        const d = params.data as TreemapNodeData
         if (d.changePercent === undefined) return `<b>${params.name}</b>`
         const sign = d.changePercent >= 0 ? '+' : ''
         const color = d.changePercent >= 0 ? '#26a69a' : '#ef5350'
@@ -76,7 +85,7 @@ const chartOption = computed(() => {
           <b>${d.name}</b>（${d.fullName}）<br/>
           價格：<b>$${d.price}</b><br/>
           漲跌：<span style="color:${color}"><b>${sign}${d.changePercent.toFixed(2)}%</b></span><br/>
-          市值：$${formatMarketCap(d.value)}
+          市值：$${formatMarketCap(d.value ?? 0)}
         `
       },
     },
@@ -103,8 +112,8 @@ const chartOption = computed(() => {
         },
         label: {
           show: true,
-          formatter: (params: any) => {
-            const d = params.data
+          formatter: (params: CallbackDataParams) => {
+            const d = params.data as TreemapNodeData
             if (d.changePercent === undefined) return params.name
             const sign = d.changePercent >= 0 ? '+' : ''
             return `{ticker|${d.name}}\n{pct|${sign}${d.changePercent.toFixed(2)}%}`

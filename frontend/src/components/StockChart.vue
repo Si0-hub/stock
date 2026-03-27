@@ -1,50 +1,40 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { LineChart, CandlestickChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, DataZoomComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
-import {
-  getMarketIndices,
-  getIndexHistory,
-  type IndexQuote,
-  type IndexHistory,
-} from '@/services/api'
-import LoadingOverlay from '@/components/LoadingOverlay.vue'
-import IndexCard from '@/components/IndexCard.vue'
+import type { IndexHistory } from '../services/api'
+import LoadingOverlay from './LoadingOverlay.vue'
 
-use([
-  LineChart,
-  CandlestickChart,
-  GridComponent,
-  TooltipComponent,
-  DataZoomComponent,
-  CanvasRenderer,
-])
+use([LineChart, CandlestickChart, GridComponent, TooltipComponent, DataZoomComponent, CanvasRenderer])
 
-const indices = ref<IndexQuote[]>([])
-const selectedSymbol = ref('^GSPC')
-const historyData = ref<IndexHistory | null>(null)
-const loading = ref(true)
-const chartLoading = ref(false)
+const props = defineProps<{
+  history: IndexHistory | null
+  loading: boolean
+}>()
+
+const emit = defineEmits<{ 'period-change': [period: string] }>()
+
 const chartType = ref<'line' | 'candlestick'>('line')
+const period = ref('3mo')
 
-const selectIndex = async (symbol: string) => {
-  selectedSymbol.value = symbol
-  chartLoading.value = true
-  try {
-    historyData.value = await getIndexHistory(symbol)
-  } catch {
-    historyData.value = null
-  } finally {
-    chartLoading.value = false
-  }
+const periodOptions = [
+  { value: '1mo', label: '1 個月' },
+  { value: '3mo', label: '3 個月' },
+  { value: '6mo', label: '6 個月' },
+  { value: '1y', label: '1 年' },
+]
+
+function changePeriod(p: string) {
+  period.value = p
+  emit('period-change', p)
 }
 
 const chartOption = computed(() => {
-  if (!historyData.value) return {}
-  const history = historyData.value.history
+  if (!props.history) return {}
+  const history = props.history.history
   const dates = history.map((p) => p.date)
 
   const tooltipStyle = {
@@ -150,56 +140,26 @@ const chartOption = computed(() => {
     ],
   }
 })
-
-const fetchData = async () => {
-  loading.value = true
-  try {
-    const [indicesData, history] = await Promise.all([
-      getMarketIndices(),
-      getIndexHistory(selectedSymbol.value),
-    ])
-    indices.value = indicesData
-    historyData.value = history
-  } catch {
-    // API 尚未啟動時靜默處理
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(fetchData)
 </script>
 
 <template>
-  <div>
-    <div class="d-flex align-items-center mb-3">
-      <h5 class="text-dark mb-0">市場概覽</h5>
-      <button
-        class="btn btn-sm btn-outline-secondary ms-2"
-        :disabled="loading"
-        @click="fetchData"
-        title="重新載入"
-      >
-        <i class="bi bi-arrow-clockwise" :class="{ spin: loading }" />
-      </button>
-    </div>
-
-    <LoadingOverlay :visible="loading" text="正在取得市場資料..." />
-
-    <!-- 指數卡片 -->
-    <div v-if="!loading && indices.length === 0" class="text-secondary">
-      無法取得市場資料，請確認後端是否已啟動。
-    </div>
-    <div v-else class="row g-3 mb-4">
-      <div v-for="q in indices" :key="q.symbol" class="col-6 col-md-3">
-        <IndexCard :quote="q" :active="selectedSymbol === q.symbol" @select="selectIndex" />
-      </div>
-    </div>
-
-    <!-- 走勢圖 -->
-    <div v-if="historyData" class="chart-container rounded-3 p-3">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <span class="text-white fw-semibold">{{ historyData.name }} 走勢（近 3 個月）</span>
+  <div class="chart-container rounded-3 p-3">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+      <span class="text-white fw-semibold">{{ history?.name ?? '' }} 走勢</span>
+      <div class="d-flex gap-2">
+        <!-- 時間週期切換 -->
+        <div class="btn-group btn-group-sm">
+          <button
+            v-for="opt in periodOptions"
+            :key="opt.value"
+            class="btn"
+            :class="period === opt.value ? 'btn-primary' : 'btn-outline-secondary'"
+            @click="changePeriod(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+        <!-- 圖表類型切換 -->
         <div class="btn-group btn-group-sm">
           <button
             class="btn"
@@ -217,26 +177,14 @@ onMounted(fetchData)
           </button>
         </div>
       </div>
-      <LoadingOverlay :visible="chartLoading" text="載入圖表中..." />
-      <v-chart v-if="!chartLoading" :option="chartOption" style="height: 350px" autoresize />
     </div>
+    <LoadingOverlay :visible="loading" text="載入圖表中..." />
+    <v-chart v-if="!loading && history" :option="chartOption" style="height: 350px" autoresize />
+    <div v-else-if="!loading" class="text-secondary text-center py-5">無圖表資料</div>
   </div>
 </template>
 
 <style scoped>
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .chart-container {
   background-color: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
